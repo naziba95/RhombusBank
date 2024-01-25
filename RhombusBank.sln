@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34511.84
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RhombusBank.API", "RhombusBank.API\RhombusBank.API.csproj", "{6DC1B4C1-849E-410A-AF29-0F78150841DB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6DC1B4C1-849E-410A-AF29-0F78150841DB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6DC1B4C1-849E-410A-AF29-0F78150841DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6DC1B4C1-849E-410A-AF29-0F78150841DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6DC1B4C1-849E-410A-AF29-0F78150841DB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2FA619E5-3B62-4781-98A1-BF2E61BF67F3}
+	EndGlobalSection
+EndGlobal
