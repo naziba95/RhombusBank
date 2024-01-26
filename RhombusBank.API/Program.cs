@@ -1,8 +1,10 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using RhombusBank.API.Data;
 using RhombusBank.API.Profiles;
 using RhombusBank.API.Services.Implementation;
 using RhombusBank.API.Services.Interface;
+using RhombusBank.API.Utils;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +23,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddAutoMapper(typeof(AutoMapperProfiles));
 builder.Services.AddScoped<IAccountService, AccountService> ();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
+builder.Services.Configure<AppSettings>(builder.Configuration.GetSection("AppSettings"));
+
 
 var app = builder.Build();
 

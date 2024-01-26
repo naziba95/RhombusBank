@@ -5,6 +5,8 @@ using RhombusBank.API.Models.Domain;
 using RhombusBank.API.Services.Interface;
 using RhombusBank.API.Utils;
 using System.Transactions;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 using Transaction = RhombusBank.API.Models.Domain.Transaction;
 
 namespace RhombusBank.API.Services.Implementation
@@ -47,10 +49,17 @@ namespace RhombusBank.API.Services.Implementation
         public TransactionResponse FindTransactionByDate(DateTime date)
         {
             TransactionResponse response = new TransactionResponse();
-            var transactions = _dbContext.Transactions.Where(x => x.TransactionDate == date).ToList();
+
+            string searchDate = date.ToString("yyyy-MM-dd");
+
+            var transactions = _dbContext.Transactions
+          .Where(x => x.TransactionDate.ToString().Contains(searchDate))
+        .ToList();
+
+
+            response.Data = transactions;
 
             return response;
-
         }
 
         public TransactionResponse MakeDeposit(string AccountNumber, decimal Amount, string TransactionPin)
@@ -58,27 +67,27 @@ namespace RhombusBank.API.Services.Implementation
            // make a deposit
            TransactionResponse response = new TransactionResponse();
             Account sourceAccount;
-            Account destintionAccount;
+            Account destinationAccount;
             Transaction transaction = new Transaction();
 
             // first, check that user - owner account is valid
             var authUser = _accountService.Authenticate(AccountNumber, TransactionPin);
-            if (authUser != null) throw new ApplicationException("Invalid credentials");
+            if (authUser == null) throw new ApplicationException("Invalid credentials");
 
             try
             {
 
             //Authorised user can now proceed to make a deposit: Take funds from settlement account angd give to customer
             sourceAccount = _accountService.GetByAccountNumber(_OurBankSettlementAccount);
-            destintionAccount = _accountService.GetByAccountNumber(AccountNumber);
+            destinationAccount = _accountService.GetByAccountNumber(AccountNumber);
 
             // Update their balances
             sourceAccount.CurrentAccountBalance -= Amount;
-            destintionAccount.CurrentAccountBalance += Amount;
+            destinationAccount.CurrentAccountBalance += Amount;
 
             // Check if updates are successful
             if ((_dbContext.Entry(sourceAccount).State == Microsoft.EntityFrameworkCore.EntityState.Modified) &&
-                (_dbContext.Entry(destintionAccount).State == Microsoft.EntityFrameworkCore.EntityState.Modified))
+                (_dbContext.Entry(destinationAccount).State == Microsoft.EntityFrameworkCore.EntityState.Modified))
             {
                 //Then transaction is successful
                 transaction.TransactionStatus = TranStatus.Success;
@@ -132,7 +141,7 @@ namespace RhombusBank.API.Services.Implementation
 
             // first, check that user - owner account is valid
             var authUser = _accountService.Authenticate(FromAccount, TransactionPin);
-            if (authUser != null) throw new ApplicationException("Invalid credentials");
+            if (authUser == null) throw new ApplicationException("Invalid credentials");
 
             try
             {
@@ -172,7 +181,7 @@ namespace RhombusBank.API.Services.Implementation
 
             // set other properties of transaction here
             transaction.TransactionType = TranType.Transfer;
-            transaction.TransactionSourceAccount = _OurBankSettlementAccount;
+            transaction.TransactionSourceAccount = FromAccount;
             transaction.TransactionDestinationAccount = ToAccount;
             transaction.TransactioAmount = Amount;
             transaction.TransactionDate = DateTime.Now;
@@ -200,7 +209,7 @@ namespace RhombusBank.API.Services.Implementation
 
             // first, check that user - owner account is valid
             var authUser = _accountService.Authenticate(AccountNumber, TransactionPin);
-            if (authUser != null) throw new ApplicationException("Invalid credentials");
+            if (authUser == null) throw new ApplicationException("Invalid credentials");
 
             try
             {
@@ -240,8 +249,8 @@ namespace RhombusBank.API.Services.Implementation
 
             // set other properties of transaction here
             transaction.TransactionType = TranType.Withdrawal;
-            transaction.TransactionSourceAccount = _OurBankSettlementAccount;
-            transaction.TransactionDestinationAccount = AccountNumber;
+            transaction.TransactionSourceAccount = AccountNumber;
+            transaction.TransactionDestinationAccount = _OurBankSettlementAccount;
             transaction.TransactioAmount = Amount;
             transaction.TransactionDate = DateTime.Now;
             transaction.TransactionParticulars = $"NEW TRANSACTION FROM SOURCE => {transaction.TransactionSourceAccount} TO DESTINATION => " +
@@ -254,12 +263,59 @@ namespace RhombusBank.API.Services.Implementation
 
             return response;
 
+        }
 
+        public TransactionResponse GetTransactionByAccount(string AccountNumber)
+        {
+            TransactionResponse response = new TransactionResponse();
+            var transactions = _dbContext.Transactions.Where((x => x.TransactionSourceAccount == AccountNumber || x.TransactionDestinationAccount == AccountNumber)).ToList();
 
+            if (transactions.Count == 0)
+            {
+                return new TransactionResponse
+                {
 
+                    ResponseCode = "02",
+                    ResponseMessage = $"No transactions for account number: {AccountNumber} "
+
+                };
+            }
+
+            response.Data = transactions;
+
+            return response;
+            
 
         }
 
-     
+        public TransactionResponse GetTransactionByReferenceId(string TransactionRef)
+        {
+            TransactionResponse response = new TransactionResponse();
+            var transaction = _dbContext.Transactions.Where(x => x.TransactionUniqueReference == TransactionRef).SingleOrDefault();
+
+            if (transaction == null)
+            {
+                return new TransactionResponse
+                {
+
+                    ResponseCode = "02",
+                    ResponseMessage = $"No transactions for reference number: {TransactionRef}"
+
+                };
+            }
+
+            response.Data = transaction;
+
+            return response;
+
+        }
+
+
+        public IEnumerable<Transaction>GetAllTransactions()
+        {
+            var transactions = _dbContext.Transactions.ToList();
+
+            return transactions;
+        }
     }
 }

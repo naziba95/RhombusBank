@@ -14,7 +14,9 @@ namespace RhombusBank.API.Profiles
             CreateMap<Account, GetAccountDetailsDto>().ReverseMap();
             CreateMap<GetAccountDetailsDto, Account>();
             CreateMap<AccountDto, Account>();
-            CreateMap<Account, AccountDto>();  
+            CreateMap<Account, AccountDto>();
+            CreateMap<Transaction, TransactionDto>();
+            CreateMap<TransactionDto, Transaction>();
         }
     }
 }

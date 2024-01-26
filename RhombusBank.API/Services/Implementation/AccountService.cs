@@ -84,7 +84,7 @@ namespace RhombusBank.API.Services.Implementation
 
         }
 
-        // Create CreatePinHash method
+        // Create the CreatePinHash method
         private static void CreatePinHash(string pin, out byte[] pinHash, out byte[] pinSalt)
         {
             using (var hmac = new System.Security.Cryptography.HMACSHA512()) 
@@ -146,7 +146,7 @@ namespace RhombusBank.API.Services.Implementation
             {
                 if (_dbContext.Accounts.Any(x => x.PhoneNumber == account.PhoneNumber)) throw new ApplicationException($"This Phone number {account.PhoneNumber} already exists");
 
-                accountToBeUpdated.Email = account.PhoneNumber;
+                accountToBeUpdated.PhoneNumber = account.PhoneNumber;
 
             }
 

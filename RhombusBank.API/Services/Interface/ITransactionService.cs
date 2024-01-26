@@ -8,6 +8,9 @@ namespace RhombusBank.API.Services.Interface
     public interface ITransactionService
     {
         TransactionResponse CreateNewTransaction(Transaction transaction);
+        IEnumerable<Transaction> GetAllTransactions();
+        TransactionResponse GetTransactionByAccount(string AccountNumber);
+        TransactionResponse GetTransactionByReferenceId(string TransactionRef);
         TransactionResponse FindTransactionByDate(DateTime date);
         TransactionResponse MakeDeposit(string AccountNumber, decimal Amount, string TransactionPin);
         TransactionResponse MakeWithDrawal(string AccountNumber, decimal Amount, string TransactionPin);
